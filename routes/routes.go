@@ -2,18 +2,21 @@ package routes
 
 import (
 	"InvoicelyX/handlers"
+	middleware "InvoicelyX/middlewares"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func SetupRoutes(app *fiber.App, db *mongo.Database) {
-	// Initialize handlers
 	userHandler := handlers.NewUserHandler(db)
 
-	// API routes
 	api := app.Group("/api")
 
 	// User routes
 	api.Post("/register", userHandler.CreateUser)
-	api.Post("/login", userHandler.Login)
+	api.Post("/users/login", userHandler.Login)
+	// Protected routes (authentication required)
+	protected := api.Group("/", middleware.JWTMiddleware())
+	//protected.Post("/users/logout", userHandler.Logout)
+	protected.Get("/users/profile", userHandler.GetProfile)
 }

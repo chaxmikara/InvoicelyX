@@ -26,8 +26,8 @@ func NewUserHandler(db *mongo.Database) *UserHandler {
 }
 
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
-	// Parse request body
-	var req models.CreateUserRequest
+	// Use the same User struct for request
+	var req models.User
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
@@ -49,7 +49,6 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check if user with email already exists
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -80,30 +79,18 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Generate UUID for user
-	userID := uuid.New().String()
-
-	// Set default role if not provided
-	role := req.Role
-	if role == "" {
-		role = "user"
+	// Generate UUID and set defaults
+	req.UserID = uuid.New().String()
+	req.Password = string(hashedPassword)
+	if req.Role == "" {
+		req.Role = "user"
 	}
+	req.IsActive = true
+	req.CreatedAt = time.Now()
+	req.UpdatedAt = time.Now()
 
-	// Create user object
-	user := models.User{
-		UserID:    userID,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Email:     req.Email,
-		Password:  string(hashedPassword),
-		Role:      role,
-		IsActive:  true,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	// Insert user into database
-	result, err := collection.InsertOne(ctx, user)
+	// Insert user
+	result, err := collection.InsertOne(ctx, req)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
@@ -112,23 +99,13 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Create response (excluding password)
-	response := models.UserResponse{
-		UserID:    user.UserID,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Email:     user.Email,
-		Role:      user.Role,
-		IsActive:  user.IsActive,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}
+	// Clear password before response
+	req.Password = ""
 
-	// Send success response
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"success": true,
 		"message": "User created successfully",
-		"data":    response,
+		"data":    req,
 		"id":      result.InsertedID,
 	})
 }

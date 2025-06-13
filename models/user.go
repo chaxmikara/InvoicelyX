@@ -16,3 +16,8 @@ type User struct {
 	CreatedAt time.Time `bson:"createdAt" json:"createdAt,omitempty"`
 	UpdatedAt time.Time `bson:"updatedAt" json:"updatedAt,omitempty"`
 }
+
+type LoginRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}

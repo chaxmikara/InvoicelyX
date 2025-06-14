@@ -1,18 +1,17 @@
 package models
 
-import "time"
+type Item struct {
+	Name     string  `bson:"name" json:"name"`
+	Price    float64 `bson:"price" json:"price"`
+	Quantity int     `bson:"quantity" json:"quantity"`
+}
 
+// Invoice represents the complete invoice structure
 type Invoice struct {
-	ID          string    `bson:"_id" json:"id"`
-	UserID      string    `bson:"userID" json:"userID"`
-	ClientName  string    `bson:"clientName" json:"clientName"`
-	ClientEmail string    `bson:"clientEmail" json:"clientEmail"`
-	IssueDate   time.Time `bson:"issueDate" json:"issueDate"`
-	DueDate     time.Time `bson:"dueDate" json:"dueDate"`
-	//invoice item
-	//total amount
-	Status      string    `bson:"status" json:"status"`
-	PdfFilePath string    `bson:"pdfFilePath" json:"pdfFilePath"`
-	CreatedAt   time.Time `bson:"createdAt" json:"createdAt"`
-	UpdatedAt   time.Time `bson:"updatedAt" json:"updatedAt"`
+	ID        string  `bson:"_id,omitempty" json:"id,omitempty"`
+	Customer  string  `bson:"customer" json:"customer"`
+	Email     string  `bson:"email" json:"email"`
+	Items     []Item  `bson:"items" json:"items"`
+	Total     float64 `bson:"total" json:"total"`
+	CreatedAt string  `bson:"created_at" json:"created_at"`
 }

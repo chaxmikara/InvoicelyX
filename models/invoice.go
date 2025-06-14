@@ -13,6 +13,7 @@ type Item struct {
 // Invoice represents the complete invoice structure
 type Invoice struct {
 	InvoiceID string    `bson:"invoice_id" json:"invoice_id"`
+	UserID    string    `bson:"user_id" json:"user_id"` // Associate invoice with user
 	Customer  string    `bson:"customer" json:"customer" validate:"required,min=2,max=100"`
 	Email     string    `bson:"email" json:"email" validate:"required,email"`
 	Items     []Item    `bson:"items" json:"items" validate:"required,dive"`

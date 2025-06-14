@@ -4,8 +4,9 @@ import (
 	"InvoicelyX/models"
 	"bytes"
 	"fmt"
-	"github.com/jung-kurt/gofpdf"
 	"strconv"
+
+	"github.com/jung-kurt/gofpdf"
 )
 
 // GenerateInvoicePDF generates a PDF invoice from the given invoice data
@@ -26,13 +27,13 @@ func GenerateInvoicePDF(invoice *models.Invoice) ([]byte, error) {
 	pdf.SetFont("Arial", "B", 12)
 	pdf.Cell(40, 8, "Invoice ID:")
 	pdf.SetFont("Arial", "", 12)
-	pdf.Cell(80, 8, invoice.ID)
+	pdf.Cell(80, 8, invoice.InvoiceID)
 	pdf.Ln(8)
 
 	pdf.SetFont("Arial", "B", 12)
 	pdf.Cell(40, 8, "Date:")
 	pdf.SetFont("Arial", "", 12)
-	pdf.Cell(80, 8, invoice.CreatedAt)
+	pdf.Cell(80, 8, invoice.CreatedAt.Format("2006-01-02"))
 	pdf.Ln(15)
 
 	// Customer Information

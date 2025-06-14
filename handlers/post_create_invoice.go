@@ -43,6 +43,16 @@ func (h *InvoiceHandler) CreateInvoice(c *fiber.Ctx) error {
 	// Generate UUID for invoice (this is primary ID)
 	invoice.InvoiceID = uuid.New().String()
 
+	// Associate invoice with current user
+	userID, ok := c.Locals("user_id").(string)
+	if !ok || userID == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": "Invalid user session",
+		})
+	}
+	invoice.UserID = userID
+
 	// Calculate total if not provided
 	if invoice.Total == 0 {
 		invoice.Total = utils.CalculateInvoiceTotal(invoice.Items)

@@ -20,6 +20,16 @@ func (h *InvoiceHandler) UpdateInvoice(c *fiber.Ctx) error {
 			"message": "Invoice ID is required",
 		})
 	}
+
+	// Get user ID from JWT
+	userID, ok := c.Locals("user_id").(string)
+	if !ok || userID == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": "Invalid user session",
+		})
+	}
+
 	var updateData models.Invoice
 	if err := c.BodyParser(&updateData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -66,7 +76,11 @@ func (h *InvoiceHandler) UpdateInvoice(c *fiber.Ctx) error {
 		},
 	}
 
-	result, err := collection.UpdateOne(ctx, bson.M{"invoice_id": invoiceID}, updateDoc)
+	// Update only user's own invoice
+	result, err := collection.UpdateOne(ctx, bson.M{
+		"invoice_id": invoiceID,
+		"user_id":    userID,
+	}, updateDoc)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
@@ -83,7 +97,10 @@ func (h *InvoiceHandler) UpdateInvoice(c *fiber.Ctx) error {
 	}
 	// Get updated invoice
 	var updatedInvoice models.Invoice
-	err = collection.FindOne(ctx, bson.M{"invoice_id": invoiceID}).Decode(&updatedInvoice)
+	err = collection.FindOne(ctx, bson.M{
+		"invoice_id": invoiceID,
+		"user_id":    userID,
+	}).Decode(&updatedInvoice)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,

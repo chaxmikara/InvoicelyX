@@ -89,10 +89,9 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 
 	_, err = collection.UpdateOne(ctx, updateFilter, updateData)
 	if err != nil {
-		// Log error but don't fail the login
+		// Log error ...
 	}
 
-	// Create response without password
 	loginResponse := map[string]interface{}{
 		"user": map[string]interface{}{
 			"id":        user.ID,

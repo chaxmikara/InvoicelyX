@@ -5,9 +5,9 @@ import (
 )
 
 func (h *UserHandler) Logout(c *fiber.Ctx) error {
-	//to do
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
-		"message": "Logout successful",
+		"message": "Logout successful. Please remove the token from client storage.",
 	})
 }

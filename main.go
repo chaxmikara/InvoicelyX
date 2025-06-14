@@ -34,6 +34,12 @@ func main() {
 	// Get database
 	db := client.Database("invoicelyx")
 
+	// Create indexes
+	err = config.CreateIndexes(db)
+	if err != nil {
+		log.Printf("Warning: Failed to create indexes: %v", err)
+	}
+
 	// Create Fiber app
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {

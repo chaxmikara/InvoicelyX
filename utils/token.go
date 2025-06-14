@@ -58,7 +58,7 @@ func ValidateJWT(tokenString string) (*Claims, error) {
 	// Get JWT secret from environment
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
-		jwtSecret = "bifiuwag79g&(G&TYwgrfo8bP9BGBj(eeibhoindwUOIBOIqwJ"
+		jwtSecret = "default-secret-key"
 	}
 
 	// Parse token

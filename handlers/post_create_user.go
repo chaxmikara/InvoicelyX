@@ -26,8 +26,8 @@ func NewUserHandler(db *mongo.Database) *UserHandler {
 }
 
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
-	// Use the same User struct for request
-	var req models.User
+	// Use CreateUserRequest struct for request parsing
+	var req models.CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
@@ -79,18 +79,26 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Generate UUID and set defaults
-	req.UserID = uuid.New().String()
-	req.Password = string(hashedPassword)
-	if req.Role == "" {
-		req.Role = "user"
+	// Create user from request data
+	user := models.User{
+		UserID:    uuid.New().String(),
+		FirstName: req.FirstName,
+		LastName:  req.LastName,
+		Email:     req.Email,
+		Password:  string(hashedPassword),
+		Role:      req.Role,
+		IsActive:  true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
-	req.IsActive = true
-	req.CreatedAt = time.Now()
-	req.UpdatedAt = time.Now()
+
+	// Set default role if not provided
+	if user.Role == "" {
+		user.Role = "user"
+	}
 
 	// Insert user
-	result, err := collection.InsertOne(ctx, req)
+	result, err := collection.InsertOne(ctx, user)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
@@ -100,12 +108,12 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	}
 
 	// Clear password before response
-	req.Password = ""
+	user.Password = ""
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"success": true,
 		"message": "User created successfully",
-		"data":    req,
+		"user":    user,
 		"id":      result.InsertedID,
 	})
 }

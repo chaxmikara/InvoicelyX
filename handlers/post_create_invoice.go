@@ -80,6 +80,6 @@ func (h *InvoiceHandler) CreateInvoice(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"success": true,
 		"message": "Invoice created successfully",
-		"data":    invoice,
+		"invoice": invoice,
 	})
 }
